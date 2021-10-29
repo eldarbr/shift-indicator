@@ -3,13 +3,13 @@
 #define ledNUM 16
 
 struct colorManager {
-  byte color; //hue in degrees
+  byte color; //color X - hue in degrees
   byte maxValue; //max color brightness
-  byte pose; //gradient position of the color X
+  byte spot; //gradient position of the color X
 };
 
 //array (1)
-colorManager colors[] = {{85, 45, 13}, {43, 100, 40}, {0, 91, 80}, {170, 90, 86}}; //set color points; the rest, transition between theese points, will be counted
+colorManager colors[] = {{85, 45, 13}, {43, 100, 40}, {0, 91, 80}, {170, 90, 86}}; //set color points; the rest, transitions between set points, will be computed
 
 byte ledsN = ledNUM; //precount positions (percents) for 16 leds [0 6 13 20 26 33 40 46 53 60 66 73 80 86 93 100]
 byte ledsOn = 16;
@@ -43,22 +43,22 @@ void LedInit() {
 }
 
 
-//this function computes color map - static colors for each led among set color points (set in array (1))
-byte SetColorMap(byte pose) {
+//this function computes color map - static colors for each led between set color points (array (1))
+byte SetColorMap(byte spot) {
   byte clN = sizeof(colors) / 3;
-  if (pose >= colors[clN - 1].pose) {
+  if (spot >= colors[clN - 1].spot) {
     return colors[clN - 1].color;
-  } else if (pose <= colors[0].pose) {
+  } else if (spot <= colors[0].spot) {
     return colors[0].color;
   } else {
     for (byte i = 0; i < (clN - 1); i++) {
-      if (pose == colors[i].pose) {
+      if (spot == colors[i].spot) {
         return colors[i].color;
-      } else if (pose > colors[i].pose && pose < colors[i + 1].pose) {
+      } else if (spot > colors[i].spot && spot < colors[i + 1].spot) {
         if (abs(colors[i].color - colors[i + 1].color) < abs(colors[i].color - (colors[i + 1].color - 255))) {
-          return map(pose, colors[i].pose, colors[i + 1].pose, colors[i].color, colors[i + 1].color);
+          return map(spot, colors[i].spot, colors[i + 1].spot, colors[i].color, colors[i + 1].color);
         } else {
-          return map(pose, colors[i].pose, colors[i + 1].pose, colors[i].color, colors[i + 1].color - 255);
+          return map(spot, colors[i].spot, colors[i + 1].spot, colors[i].color, colors[i + 1].color - 255);
         }
       }
     }
